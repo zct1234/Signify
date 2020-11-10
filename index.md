@@ -15,6 +15,7 @@ import datetime
 from board import Board
 from game import Game 
 from copy import deepcopy
+import numpy as np
 
 class RandomPlayer:
     """
