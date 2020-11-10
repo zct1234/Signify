@@ -84,8 +84,7 @@ class HumanPlayer:
         # 首先判断输入是否正确，然后再判断是否符合黑白棋规则的落子位置
         while True:
             action = input(
-                    "请'{}-{}'方输入一个合法的坐标(e.g. 'D3'，若不想进行，请务必输入'Q'结束游戏。): ".format(player,
-                                                                                 self.color))
+                    "请'{}-{}'方输入一个合法的坐标(e.g. 'D3'，若不想进行，请务必输入'Q'结束游戏。): ".format(player, self.color))
 
             # 如果人类玩家输入 Q 则表示想结束比赛
             if action == "Q" or action == 'q':
