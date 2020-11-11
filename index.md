@@ -222,6 +222,8 @@ class AIPlayer:
             # 恢复棋盘
             board._board = deepcopy(board_ori)
             return maxx
+        
+        # ------------------------------------------------------------------------
 
         board_o = deepcopy(board._board)
         maxx = -10005
