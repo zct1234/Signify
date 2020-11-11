@@ -263,4 +263,80 @@ class AIPlayer:
         return action
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+### 基于区域二元线性回归模型的图像恢复
+```python
+def restore_image(noise_img, size=4):
+    """
+    使用 你最擅长的算法模型 进行图像恢复。
+    :param noise_img: 一个受损的图像
+    :param size: 输入区域半径，长宽是以 size*size 方形区域获取区域, 默认是 4
+    :return: res_img 恢复后的图片，图像矩阵值 0-1 之间，数据类型为 np.array,
+            数据类型对象 (dtype): np.double, 图像形状:(height,width,channel), 通道(channel) 顺序为RGB
+    """
+    # 恢复图片初始化，首先 copy 受损图片，然后预测噪声点的坐标后作为返回值。
+    res_img = np.copy(noise_img)
+
+    # 获取噪声图像
+    noise_mask = get_noise_mask(noise_img)
+
+    # -------------实现图像恢复代码答题区域----------------------------
+    # 获得图像形状
+    [height, width, channel] = noise_img.shape
+    for row in range(height):
+        for col in range(width):
+            # 确定线性回归训练集区域 rowl-rowr
+            if row - size < 0:
+                rowl = 0
+                rowr = rowl + 2 * size
+            elif row + size >= height:
+                rowr = height - 1
+                rowl = rowr - 2 * size
+            else:
+                rowl = row - size
+                rowr = row + size
+           
+            # 确定线性回归训练集区域 coll-colr
+            if col - size < 0:
+                coll = 0
+                colr = coll + 2 * size
+            elif col + size >= width:
+                colr = width - 1
+                coll = colr - 2 * size
+            else:
+                coll = col - size
+                colr = col + size
+            
+            for k in range(channel):
+                
+                if noise_mask[row, col, k] != 0:
+                    continue
+              
+                x_train = []
+                y_train = []
+                
+                # 确定噪点位置并生成训练集
+                for i in range(rowl, rowr):
+                    for j in range(coll, colr):
+                        if noise_mask[i, j, k] == 0.:
+                            continue
+                        if i == row and j == col:
+                            continue
+                        x_train.append([i, j])
+                        y_train.append([noise_img[i, j, k]])
+                if x_train == []:
+                    continue
+                
+                # 对噪点进行预测
+                Regression = Ridge()
+                Regression.fit(x_train, y_train)
+                if Regression.predict([[row, col]]) < 0:
+                    res_img[row, col, k] = 0
+                elif Regression.predict([[row, col]]) > 1:
+                    res_img[row, col, k] = 1
+                else:
+                    res_img[row, col, k] = Regression.predict([[row, col]])
+                    
+    # ---------------------------------------------------------------
+    return res_img
+
+```
