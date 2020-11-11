@@ -100,11 +100,6 @@ class HumanPlayer:
                 else:
                     print("你的输入不合法，请重新输入!")
 
-import random
-from board import Board
-from game import Game 
-from copy import deepcopy
-import numpy as np
 
 class AIPlayer:
     """
@@ -227,7 +222,6 @@ class AIPlayer:
             # 恢复棋盘
             board._board = deepcopy(board_ori)
             return maxx
-        
 
         board_o = deepcopy(board._board)
         maxx = -10005
