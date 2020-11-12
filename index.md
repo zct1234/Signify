@@ -480,9 +480,9 @@ assign i2c_sda = (count_1 < 40)? SDA_BUFFER[30] : 1'b1;
 //assign i2c_sda = SDA_BUFFER[30];
 
 endmodule
-```c
-### 基于51单片机的温度读取和控制器
 ```
+### 基于51单片机的温度读取和控制器
+```c
 #include <reg52.h>
 #include <STC12C.h>
 #include <intrins.h>              
