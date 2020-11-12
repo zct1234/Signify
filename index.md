@@ -336,3 +336,148 @@ def restore_image(noise_img, size=4):
     return res_img
 
 ```
+### I2C_Sender
+```verilog
+module i2c_sender(
+    //input send_data,
+    input clk_in,
+    input reset,
+    output i2c_scl,
+    output i2c_sda
+);
+
+//wire [15:0] send_data;
+//parameter  I2C_HDMI_ADDR = 8'h72;
+parameter  ACK = 1'b1;
+
+wire [15:0] I2C_CMD_PAIRS[0:39];
+assign I2C_CMD_PAIRS[0] = 16'h0202;
+assign I2C_CMD_PAIRS[1] = 16'h4110;
+assign I2C_CMD_PAIRS[2] = 16'h9803;
+assign I2C_CMD_PAIRS[3] = 16'h9AE0;
+assign I2C_CMD_PAIRS[4] = 16'h9C30;
+assign I2C_CMD_PAIRS[5] = 16'h9D32;
+assign I2C_CMD_PAIRS[6] = 16'hA2A4;
+assign I2C_CMD_PAIRS[7] = 16'hA3A4;
+assign I2C_CMD_PAIRS[8] = 16'hE0D0;
+assign I2C_CMD_PAIRS[9] = 16'h5512;
+assign I2C_CMD_PAIRS[10] = 16'hF900;
+assign I2C_CMD_PAIRS[11] = 16'h1501;
+assign I2C_CMD_PAIRS[12] = 16'h4808;
+assign I2C_CMD_PAIRS[13] = 16'h163C;
+assign I2C_CMD_PAIRS[14] = 16'h1700;
+assign I2C_CMD_PAIRS[15] = 16'hAF04;
+assign I2C_CMD_PAIRS[16] = 16'h18E7;
+assign I2C_CMD_PAIRS[17] = 16'h1934;
+assign I2C_CMD_PAIRS[18] = 16'h1A04;
+assign I2C_CMD_PAIRS[19] = 16'h1BAD;
+assign I2C_CMD_PAIRS[20] = 16'h1C00;
+assign I2C_CMD_PAIRS[21] = 16'h1D00;
+assign I2C_CMD_PAIRS[22] = 16'h1E1C;
+assign I2C_CMD_PAIRS[23] = 16'h1F1B;
+assign I2C_CMD_PAIRS[24] = 16'h201D;
+assign I2C_CMD_PAIRS[25] = 16'h21DC;
+assign I2C_CMD_PAIRS[26] = 16'h2204;
+assign I2C_CMD_PAIRS[27] = 16'h23AD;
+assign I2C_CMD_PAIRS[28] = 16'h241F;
+assign I2C_CMD_PAIRS[29] = 16'h2524;
+assign I2C_CMD_PAIRS[30] = 16'h2311;
+assign I2C_CMD_PAIRS[31] = 16'h2735;
+assign I2C_CMD_PAIRS[32] = 16'h2800;
+assign I2C_CMD_PAIRS[33] = 16'h2900;
+assign I2C_CMD_PAIRS[34] = 16'h2A04;
+assign I2C_CMD_PAIRS[35] = 16'h2BAD;
+assign I2C_CMD_PAIRS[36] = 16'h2C08;
+assign I2C_CMD_PAIRS[37] = 16'h2D7C;
+assign I2C_CMD_PAIRS[38] = 16'h2E1B;
+assign I2C_CMD_PAIRS[39] = 16'h2F77;
+//assign I2C_CMD_PAIRS[40] = send_data;
+
+/* YOUR CODE*/
+
+// divde clk from 50MHz to 100KHz
+reg [15:0]   counter=0;
+reg          CLK_100K_A=0;
+reg          CLK_100K_B=0;
+
+wire CLK_100K_SDA;  // debug
+wire CLK_100K_SCL;  // debug
+
+always @(posedge clk_in or posedge reset)
+begin
+    if (reset)  begin counter = 0; CLK_100K_A = 0; CLK_100K_B = 0; end
+    else begin
+        counter = counter + 1;
+        if (counter == 175) CLK_100K_A = ~CLK_100K_A;
+        if (counter >= 250) begin CLK_100K_B = ~CLK_100K_B; counter = 0; end
+    end
+end
+   
+assign   CLK_100K_SDA = CLK_100K_A | CLK_100K_B;
+assign   CLK_100K_SCL = CLK_100K_A & CLK_100K_B;
+
+reg [32:0]   SDA_BUFFER, SCL_BUFFER;
+reg [15:0]   DA_NUM = 0;
+reg          DA_EN = 0; 
+reg [7:0]    count = 0;
+reg [7:0]    count_1 = 0;
+reg [7:0]    count_2 = 0;
+
+always @(posedge CLK_100K_SCL) 
+begin
+    if (reset) begin DA_EN = 0; count = 0; count_1 = 0; count_2 = 0;end
+    else begin
+        if (DA_EN)
+            SCL_BUFFER = {2'b10,27'b0,2'b11};
+        else 
+            SCL_BUFFER = {SCL_BUFFER[29:0],1'b1};
+        if(count < 32 && DA_EN == 0)
+        begin
+            count = count + 1;
+        end
+        if(count == 32 && DA_EN == 0)
+        begin
+            DA_EN = 1;
+        end
+        if(count_2 < 3 && DA_EN == 1)
+        begin
+            count_2 = count_2 + 1;
+        end
+        if(count_2 == 3 && DA_EN == 1)
+        begin
+            count = 0;
+            DA_EN = 0;
+            count_2 = 0;
+            if(count_1 < 40)
+                count_1 = count_1 + 1;
+            else
+                count_1 = 40;
+        end
+
+    end
+end
+
+reg [7:0]  I2C_HDMI_ADDR;
+always @(posedge CLK_100K_SDA) 
+begin
+    if (reset);
+    else begin
+        DA_NUM = I2C_CMD_PAIRS[count_1];
+        if (count_1 == 0) I2C_HDMI_ADDR = 8'hE8;
+        else I2C_HDMI_ADDR = 8'h72;
+        if (DA_EN) begin
+            SDA_BUFFER = {2'b10,I2C_HDMI_ADDR,ACK,DA_NUM[15:8],ACK,DA_NUM[7:0],ACK,2'b01};
+        end
+        else 
+            SDA_BUFFER = {SDA_BUFFER[29:0],1'b1};
+    end
+end
+
+assign i2c_scl = (count_1 < 40)? (CLK_100K_SCL || SCL_BUFFER[30]) : 1'b1;
+assign i2c_sda = (count_1 < 40)? SDA_BUFFER[30] : 1'b1;
+
+//assign i2c_scl = CLK_100K_SCL || SCL_BUFFER[30];
+//assign i2c_sda = SDA_BUFFER[30];
+
+endmodule
+```
