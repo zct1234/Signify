@@ -13,7 +13,7 @@ sbit LCD_E=P3^4;     /*LCD片选信号*/
 #define uint unsigned int
 
 /* 定义命令 */
-#define ISP_IAP_BYTE_READ	    0x01        /*  字节读数据存储区   */
+#define ISP_IAP_BYTE_READ	0x01        /*  字节读数据存储区   */
 #define ISP_IAP_BYTE_PROGRAM    0x02        /*  字节编程数据存储区 */
 #define ISP_IAP_SECTOR_ERASE    0x03        /*  扇区擦除数据存储区 */
 
@@ -181,27 +181,27 @@ void delay(unsigned int t) //延时
 
 uint Adc(unsigned char n)
 {
-	unsigned char i;	
-	uint result=0;
+    unsigned char i;	
+    uint result=0;
 
-	ADC_CONTR = ADC_CONTR|0x80;
-	delay(10);
-	i = 0x01<<n;
+    ADC_CONTR = ADC_CONTR|0x80;
+    delay(10);
+    i = 0x01<<n;
     P1M0 = P1M0|i;
-   	P1M1 = P1M1|i;
+    P1M1 = P1M1|i;
     delay(10); 
     ADC_CONTR = 0xE0|n;
     delay(10);
-	ADC_DATA = 0;
-	ADC_LOW2 = 0;
-	ADC_CONTR = ADC_CONTR|0x08;
-	delay(10);
+    ADC_DATA = 0;
+    ADC_LOW2 = 0;
+    ADC_CONTR = ADC_CONTR|0x08;
+    delay(10);
     ADC_CONTR = ADC_CONTR&0xE7;
-	result = ADC_DATA;
-	result<<=2;
-	result = result&0x03FC;
-	result = result|(ADC_LOW2 & 0x03);
-	return(result);
+    result = ADC_DATA;
+    result<<=2;
+    result = result&0x03FC;
+    result = result|(ADC_LOW2 & 0x03);
+    return(result);
 }
 
 void cominit(void)
@@ -217,18 +217,18 @@ void cominit(void)
 
 uint Adc6(void)
 {
-	uint i,j,k;
-	uint result=0;
-	uint Tmin=0x3ff,Tmax=0;
-	ulong T_tatol=0;
-	uint temp1;
+    uint i,j,k;
+    uint result=0;
+    uint Tmin=0x3ff,Tmax=0;
+    ulong T_tatol=0;
+    uint temp1;
     uint comp;
 
-	k=0;
-        j=0;
-        overflag=1;
+    k=0;
+    j=0;
+    overflag=1;
 
-        comp=3;           // AdcMem; //值保存
+    comp=3;           // AdcMem; //值保存
 
         for(i=0;i<1000;i++)
 	    {
