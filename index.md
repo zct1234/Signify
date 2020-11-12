@@ -16,7 +16,7 @@ sbit LCD_E=P3^4;     /*LCD片选信号*/
 #define uint unsigned int
 
 /* 定义命令 */
-#define ISP_IAP_BYTE_READ	    0x01        /*  字节读数据存储区   */
+#define ISP_IAP_BYTE_READ	0x01        /*  字节读数据存储区   */
 #define ISP_IAP_BYTE_PROGRAM    0x02        /*  字节编程数据存储区 */
 #define ISP_IAP_SECTOR_ERASE    0x03        /*  扇区擦除数据存储区 */
 
