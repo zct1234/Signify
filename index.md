@@ -16,17 +16,17 @@ sbit LCD_E=P3^4;     /*LCD片选信号*/
 #define uint unsigned int
 
 /* 定义命令 */
-#define ISP_IAP_BYTE_READ				0x01        /*  字节读数据存储区   */
-#define ISP_IAP_BYTE_PROGRAM          0x02        /*  字节编程数据存储区 */
-#define ISP_IAP_SECTOR_ERASE     0x03        /*  扇区擦除数据存储区 */
+#define ISP_IAP_BYTE_READ	0x01        /*  字节读数据存储区   */
+#define ISP_IAP_BYTE_PROGRAM    0x02        /*  字节编程数据存储区 */
+#define ISP_IAP_SECTOR_ERASE    0x03        /*  扇区擦除数据存储区 */
 
 /* 定义Flash 操作等待时间 */
-#define ENABLE_ISP        0x84
-#define DATA_FLASH_START_ADDRESS           0x2800
+#define ENABLE_ISP                    0x84
+#define DATA_FLASH_START_ADDRESS      0x2800
 
-typedef     unsigned char	INT8U;		/* 8 bit 无符号整型  */
+typedef     unsigned char   INT8U;      /* 8 bit 无符号整型  */
 typedef     unsigned int    INT16U;     /* 16 bit 无符号整型 */
-#define		DELAY_CONST         60000
+#define	    DELAY_CONST     60000
 
 /* 定义常量 */
 #define ERROR   0
