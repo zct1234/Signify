@@ -104,12 +104,12 @@ void DispOneChar(Uchar x,Uchar y,Uchar Wdata) {
 初始化程序, 必须按照产品资料介绍的初始化过程进行
 =======================================================*/
 void LcdReset( void ) {
-       LcdWriteCommand( 0x38, 0);         // 显示模式设置(不检测忙信号)
-        Delay5Ms();
+    LcdWriteCommand( 0x38, 0);         // 显示模式设置(不检测忙信号)
+    Delay5Ms();
     LcdWriteCommand( 0x38, 0);            // 共三次
-        Delay5Ms();
+    Delay5Ms();
     LcdWriteCommand( 0x38, 0);
-        Delay5Ms();
+    Delay5Ms();
 
     LcdWriteCommand( 0x38, 1);            // 显示模式设置(以后均检测忙信号)
     LcdWriteCommand( 0x08, 1);            // 显示关闭
@@ -124,7 +124,7 @@ void LcdReset( void ) {
 =======================================================*/
 void LcdWriteCommand( Uchar CMD,Uchar AttribC ) {
     if (AttribC) WaitForEnable();                // 检测忙信号?
-    RS = 0;    RW = 0; _nop_();
+    RS = 0; RW = 0; _nop_();
     DataPort = CMD; _nop_();
     // 送控制字子程序
     Elcm = 1;_nop_();_nop_();Elcm = 0;           // 操作允许脉冲信号
@@ -147,7 +147,7 @@ DB7:    0  LCD控制器空闲; 1  LCD控制器忙
 ========================================================*/
 void WaitForEnable( void ) {
     DataPort = 0xff;
-    RS =0; RW = 1; _nop_();    Elcm = 1; _nop_(); _nop_();
+    RS =0; RW = 1; _nop_(); Elcm = 1; _nop_(); _nop_();
     while( DataPort & Busy );
     Elcm = 0;
 }
@@ -190,16 +190,16 @@ uint Adc(unsigned char n)
 	ADC_CONTR = ADC_CONTR|0x80;
 	delay(10);
 	i = 0x01<<n;
-        P1M0 = P1M0|i;
+    P1M0 = P1M0|i;
    	P1M1 = P1M1|i;
-        delay(10); 
-        ADC_CONTR = 0xE0|n;
-        delay(10);
+    delay(10); 
+    ADC_CONTR = 0xE0|n;
+    delay(10);
 	ADC_DATA = 0;
 	ADC_LOW2 = 0;
 	ADC_CONTR = ADC_CONTR|0x08;
 	delay(10);
-        ADC_CONTR = ADC_CONTR&0xE7;
+    ADC_CONTR = ADC_CONTR&0xE7;
 	result = ADC_DATA;
 	result<<=2;
 	result = result&0x03FC;
@@ -225,48 +225,45 @@ uint Adc6(void)
 	uint Tmin=0x3ff,Tmax=0;
 	ulong T_tatol=0;
 	uint temp1;
-        uint comp;
+    uint comp;
 
 	k=0;
         j=0;
         overflag=1;
 
-        comp=3;// AdcMem; //值保存
+        comp=3;           // AdcMem; //值保存
 
         for(i=0;i<1000;i++)
-	{
-        temp1=Adc(2);// AdcMem; //值保存
-		if(temp1<comp)
-		{
-			result=Adc(1);// AdcMem; //值保存
-            temp1=Adc(2);// AdcMem; //值保存
-			if(temp1>comp)
-				continue;
-		}
-		else
+	    {
+            temp1=Adc(2); // AdcMem; //值保存
+	        if(temp1<comp)
+	        {
+		        result=Adc(1);    // AdcMem; //值保存
+                temp1=Adc(2);     // AdcMem; //值保存
+		    if(temp1>comp) continue;
+	    }
+	    else
         { 
             j++;
-            if(j>900)
-                return 0;
-			continue;
+            if(j>900) return 0;
+		    continue;
         }
-		k++;
-		if(Tmin>result)
-			Tmin=result;
-		if(Tmax<result)
-			Tmax=result;
-		T_tatol=T_tatol+result;
-	
-		if(k==21)  
-		{
-			T_tatol=T_tatol-Tmin;
-			T_tatol=T_tatol-Tmax;
-			T_tatol>>=2;
+
+	    k++;
+	    if(Tmin>result) Tmin=result;
+	    if(Tmax<result) Tmax=result;
+	    T_tatol=T_tatol+result;
+	    
+	    if(k==21)  
+	    {
+	        T_tatol=T_tatol-Tmin;
+	        T_tatol=T_tatol-Tmax;
+	        T_tatol>>=2;
             overflag=0;
-			return((uint)T_tatol);
-		}
+		    return((uint)T_tatol);
+	    }
 	}
-	return 0;
+    return 0;
 }
 
 void send(uchar i)
@@ -324,7 +321,7 @@ void ISP_IAP_disable(void)
 	ISP_CONTR=0;	/* 0111,1111 */
 	ISP_CMD=0;
 	ISP_TRIG=0;
-//	EA=1;                	/* 开中断 */
+//	EA=1;           /* 开中断 */
 }
 /* 字节读 */
 uchar byte_read(uint byte_addr)
@@ -347,7 +344,7 @@ uchar byte_read(uint byte_addr)
 /* 扇区擦除 */
 uchar sector_erase(uint sector_addr)
 {
-	ISP_CONTR       =       ENABLE_ISP;
+	ISP_CONTR   =   ENABLE_ISP;
 	ISP_CMD  	=	ISP_IAP_SECTOR_ERASE;
 
 	ISP_ADDRH	=	(uchar)(sector_addr >> 8);
@@ -363,7 +360,7 @@ uchar sector_erase(uint sector_addr)
 /* 字节编程 */
 uchar byte_program(uint byte_addr, uchar original_data)
 {
-	ISP_CONTR       =       ENABLE_ISP;
+	ISP_CONTR   =   ENABLE_ISP;
 	ISP_CMD		=	ISP_IAP_BYTE_PROGRAM;
 	ISP_ADDRH	=	(uchar)(byte_addr >> 8);
 	ISP_ADDRL	=	(uchar)(byte_addr & 0x00ff);
@@ -417,112 +414,113 @@ main()
     Delay400Ms();
     cominit();	
  
-    TMOD=0x01;	         //定时器0工作方式1
+    TMOD=0x01;	            //定时器0工作方式1
     TH0=(65536-10000)/256;	//12M晶振10MS计时常数
     TL0=(65536-10000)%256;
     EA=1;	//开总中断
     ET0=1;	//开定时器0中断
     TR0=1;	//启动定时器0
 
-    for(i=0;i<8;i++)
+    for(i=0; i<8; i++)
     {
         DispOneChar(i,0,' ');
         DispOneChar(i,1,' ');
     }
 
     while(1) 
-   {
-   	if(!KEY_ADD)
-	{
-	    Delay5Ms();
-	    Delay5Ms();
-	    if(!KEY_ADD)
+    {
+   	    if(!KEY_ADD)
 	    {
-		while(!KEY_ADD)
-		{
-		    if(usertemp<60) usertemp++;
-		    Delay400Ms();
-		    Delay400Ms();
-		    Delay400Ms();
+	        Delay5Ms();
+	        Delay5Ms();
+	        if(!KEY_ADD)
+	        {
+		        while(!KEY_ADD)
+		        {
+		            if(usertemp<60) usertemp++;
+		            Delay400Ms();
+		            Delay400Ms();
+		            Delay400Ms();
+	            }
 	        }
-	     }
-	}
+	    }
 
-	if(!KEY_DEC)
-	{
-	    Delay5Ms();
-	    Delay5Ms();
 	    if(!KEY_DEC)
 	    {
-		while(!KEY_DEC)
-		{
-		    if(usertemp>20) usertemp--;
-		    Delay400Ms();
-		    Delay400Ms();
-		    Delay400Ms();
-		}
+	        Delay5Ms();
+	        Delay5Ms();
+	        if(!KEY_DEC)
+	        {
+	    	    while(!KEY_DEC)
+		        {
+		            if(usertemp>20) usertemp--;
+		            Delay400Ms();
+		            Delay400Ms();
+		            Delay400Ms();
+		        }
+	        }
 	    }
-	}
                 
         if(!KEY_ON_OFF)
-	{
-	    Delay5Ms();
-	    Delay5Ms();
-	    if(!KEY_ON_OFF)
 	    {
-	        while(!KEY_ON_OFF)
+	        Delay5Ms();
+	        Delay5Ms();
+	        if(!KEY_ON_OFF)
 	        {
-		    if(count==0) {count=1;}
+	            while(!KEY_ON_OFF)
+	            {
+		            if(count==0) {count=1;}
                     else {count=0;}
                     Delay400Ms();
                     Delay400Ms();
                     Delay400Ms();
-		}
+		        }
+	        }
 	    }
-	}
-	tmp_alarm=Adc(7)*0.0698; //温度传感器改为6
-	disptemp = temp/rate;	 //如果AD读入范围是0000~0500
+	    tmp_alarm=Adc(7)*0.0698; //温度传感器改为6
+    	disptemp = temp/rate;	 //如果AD读入范围是0000~0500
 	
-	if(tmp_alarm<(usertemp-5)) ON_OFF=1;
-	else if((tmp_alarm>=(usertemp-5))&&(tmp_alarm<usertemp)) ON_OFF=PWM;
+	    if(tmp_alarm<(usertemp-5)) ON_OFF=1;
+    	else if((tmp_alarm>=(usertemp-5))&&(tmp_alarm<usertemp)) ON_OFF=PWM;
         else if(tmp_alarm>=usertemp) ON_OFF=0;
 	
         if(out==0) ON_OFF=ON_OFF;
-	else if(out) ON_OFF=0;
+	    else if(out) ON_OFF=0;
         for(i=0;i<6;i++){
-	    DispOneChar(i,0,*(number4+i));
-	    DispOneChar(i,1,*(number5+i));
-	}
+	        DispOneChar(i,0,*(number4+i));
+	        DispOneChar(i,1,*(number5+i));
+	    }
 	
-	for(i=0;i<3;i++) DispOneChar(i+12,0,' ');
-	if(count)
-	{
-	    for(i=0;i<2;i++) DispOneChar(i+12,0,*(number6+i));
-	    if(tmp_alarm<(usertemp-5)){
-		LED_Red	= 0;
-		LED_Green = 0;
-		LED_Yellow = 1;
-	    }
+	    for(i=0;i<3;i++) DispOneChar(i+12,0,' ');
+	    if(count)
+	    {
+	        for(i=0;i<2;i++) DispOneChar(i+12,0,*(number6+i));
+	        if(tmp_alarm<(usertemp-5)){
+		        LED_Red	= 0;
+		        LED_Green = 0;
+		        LED_Yellow = 1;
+	        }
             else if((tmp_alarm>=(usertemp-5))&&(tmp_alarm<usertemp)){
-		LED_Red = 0;
-		LED_Green = 1;
-		LED_Yellow = 0;
+	        	LED_Red = 0;
+	        	LED_Green = 1;
+		        LED_Yellow = 0;
+	        }
+	        else if(tmp_alarm>=usertemp){
+		        LED_Red = 1;
+		        LED_Green = 0;
+		        LED_Yellow = 0;
+	        }
 	    }
-	    else if(tmp_alarm>=usertemp){
-		LED_Red = 1;
-		LED_Green = 0;
-		LED_Yellow = 0;
+
+	    else if(count==0)
+	    {
+	        for(i=0;i<3;i++) DispOneChar(i+12,0,*(number7+i));
+	        LED_Red = 0;
+	        LED_Green = 0;
+	        LED_Yellow = 0;
 	    }
-	}
-	else if(count==0)
-	{
-	    for(i=0;i<3;i++) DispOneChar(i+12,0,*(number7+i));
-	    LED_Red = 0;
-	    LED_Green = 0;
-	    LED_Yellow = 0;
-	}
-	dispchar(tmp_alarm,7,0);
-	dispchar(usertemp,7,1);
+	    dispchar(tmp_alarm,7,0);
+	    dispchar(usertemp,7,1);
     }
 } //end_main
 ```
