@@ -1,5 +1,5 @@
 ## Signify面试
-### 基于51单片机的温度读取和控制器
+### 基于51单片机的温度检测和控制器
 ```c
 #include <reg52.h>
 #include <STC12C.h>
