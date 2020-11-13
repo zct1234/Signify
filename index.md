@@ -389,3 +389,121 @@ assign i2c_sda = (count_1 < 40)? SDA_BUFFER[30] : 1'b1;
 
 endmodule
 ```
+### ICCAD Problem1
+```bash
+#!/bin/bash
+
+while :
+do
+
+#将目录放在while循环内,可以实现每次输入前显示menu要求,在程序开始和结尾处添加-线可以方便程序执行时区分指令
+echo "---------------------------------------------------------------------------------------
+Options:
+1, List all files in current directory and sub-directories in long format
+2, List only hidden files in current directory and sub-directories in long format
+3, Read in a name, report whether it is a file, a user, a device, a command, or nobody
+4, Read in a file name, show it in hexadecimal format if you have executable permission
+5, Let '/usr/bin/ftp' automatically download "demo_inout.c" from our course ftp site
+q, Quit
+"
+
+read -p "pls input an option: " option
+  case "$option" in
+    1)
+        ls -Ral                  #-R表示递归,可以显示子目录
+        ;;
+    2)
+        find -type f -iname ".*" #找到所有以.开头的文件/隐藏文件
+        ;;
+    3)
+        read -p "pls input a name: " name
+        if [ -f "$name" ]; then         #-f表示如果输入名称表示的是一个文件,返回真
+          echo "$name is a file!"
+        elif [ -e /dev/$name ]; then    #linux系统中device存放在/dev/下,-e表示当device文件存在时,返回真
+          echo "$name is a device!"     
+        elif [ -e /bin/$name ]; then    #linux系统中command存放在/bin/以及/usr/bin下
+          echo "$name is a command!"
+        elif [ -e /usr/bin/$name ]; then
+          echo "$name is a command!"
+        elif [ `cat /etc/passwd | grep $name` ]; then  #如果user不存在,则grep $name为假,否则为真,类似比对查找
+          echo "$name is a user!"
+        else
+          echo "$name is nobody!"
+        fi
+        ;;
+    4)
+        read -p "pls input a filename: " filename
+        filelocate=`locate $filename | grep "/$filename"`  #利用locate指令定位文件,但是也会存在其他名称相似的文件,所以添加grep指令
+        location=${filelocate%/*}     #%/*表示删除字符串右边第一个/及其右边所有字符
+        if [ "$filelocate" ]; then
+          echo "$filename is an existing file!"
+          file_permission=`cd $location && ls -l | grep " $filename"`  #利用cd指令到达文件所在目录,再通过ls -l以及grep指令查找文件详细信息
+          echo "$file_permission"
+          permission=`cd $location && ls -l | grep "$filename" | cut -c 4-4`  #在这里为了化简,只是查询了文件创建者的执行权限,由于本机用户有限,不能另外登录其他用户,不好判断代码的准确性,以后会再改进
+          if [ "${file_permission:4:1}"="-" ]; then
+            echo "$filename doesn't have executable permission!"
+          else
+            xxd $filelocate
+          fi
+        else
+          echo "$filename is not an existing file!"
+        fi
+        ;;
+    5)
+        read -p "pls input a command: " command
+        if [ "$command"="/usr/bin/ftp" ]; then     #Shell中通常将EOF与 << 结合使用，表示后续的输入作为子命令或子Shell的输入，直到遇到EOF为止，再返回到主调Shell
+          ftp -v -n 10.212.43.214 << EOF      
+            user anonymous password
+            cd Course/ICCAD/demo
+            binary
+            prompt
+            get demo_inout.c
+            bye
+EOF
+          echo "get demo_inout.c done"
+        fi
+        ;;
+    q)
+        read -p "press [y] to qiut: " quit_option
+        if [ "$quit_option" = "y" ]; then
+          exit
+        fi
+        ;;
+    *)
+        read -p "pls input an option: " option1   #当第一次输入不是要求指令时,将第一次输入保存为第二次执行时的输入,并读取第二次输入命令,执行选项
+        case "$option1" in
+          3)
+            if [ -f "$option" ]; then
+              echo "$option is a file!"
+            elif [ -e /dev/$option ]; then
+              echo "$option is a device!"
+            elif [ -e /bin/$option ]; then
+              echo "$option is a command!"
+            elif [ -e /usr/bin/$name ]; then
+              echo "$option is a command!"
+            elif [ `cat /etc/passwd | grep $option` ]; then
+              echo "$option is a user!"
+            else
+              echo "$option is nobody!"
+            fi
+            ;;
+          4)
+            filelocate=`locate $option | grep "/$option"`
+            location=${filelocate%/*}
+            if [ "$filelocate" ]; then
+              echo "$option is an existing file!"
+              file_permission=`cd $location && ls -l | grep " $option"`
+              echo "$file_permission"
+              permission=`cd $location && ls -l | grep "$option" | cut -c 4-4`
+              if [ "${file_permission:4:1}"="-" ]; then
+                echo "$option doesn't have executable permission!"
+              else
+                xxd $filelocate
+              fi
+            else
+              echo "$option is not an existing file!"
+            fi
+        esac
+  esac
+done
+```
